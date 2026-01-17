@@ -1,0 +1,6 @@
+---
+- name: Deploy Node.js app to production
+  hosts: all
+  become: no
+  roles:
+    - node_app

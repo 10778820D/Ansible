@@ -1,0 +1,13 @@
+[Unit]
+Description=My Node.js App
+After=network.target
+
+[Service]
+User=deploy
+WorkingDirectory=/home/deploy/apps/myapp
+ExecStart=/usr/bin/node /home/deploy/apps/myapp/index.js
+Restart=always
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

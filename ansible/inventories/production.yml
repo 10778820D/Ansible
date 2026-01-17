@@ -1,0 +1,6 @@
+all:
+  hosts:
+    web1:
+      ansible_host: 192.168.1.47  # REEMPLAZA por tu IP
+      ansible_user: deploy
+      ansible_python_interpreter: /usr/bin/python3

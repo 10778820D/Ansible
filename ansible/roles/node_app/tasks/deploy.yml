@@ -1,0 +1,37 @@
+---
+- name: Ensure app dir exists
+  file:
+    path: /home/deploy/apps/myapp
+    state: directory
+    owner: deploy
+    group: deploy
+    mode: '0755'
+
+- name: Checkout app code from repo (pull latest)
+  git:
+    repo: 'https://github.com/10778820D/Ansible.git'  # REEMPLAZA con tu repo
+    dest: /home/deploy/apps/myapp
+    version: "{{ git_ref | default('main') }}"
+    force: yes
+    update: yes
+  become: no
+
+- name: Install npm dependencies
+  npm:
+    path: /home/deploy/apps/myapp
+    production: yes
+
+- name: Copy systemd service file
+  template:
+    src: node-app.service.j2
+    dest: /etc/systemd/system/myapp.service
+  become: yes
+  notify:
+    - Reload systemd
+
+- name: Ensure service is started and enabled
+  systemd:
+    name: myapp
+    state: started
+    enabled: yes
+  become: yes
