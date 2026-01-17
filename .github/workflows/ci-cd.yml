@@ -1,16 +1,39 @@
 name: CI/CD - Ansible Deploy
+
 on:
   push:
     branches: [ main ]
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.8.2
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install deps & run tests
+        run: |
+          cd app
+          npm ci
+          npm test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: http://192.168.1.47 # reemplaza con la IP de tu servidor
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
@@ -18,8 +41,20 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
-      - name: Run Ansible deploy
+      - name: Install Ansible
         run: |
-          ansible-playbook ansible/playbooks/deploy.yml -i ansible/inventories/production.yml
+          sudo apt update
+          sudo apt install -y python3-pip sshpass
+          python3 -m pip install --upgrade pip
+          pip3 install ansible  # instalar última versión compatible
 
+      - name: Run Ansible Playbook (deploy)
+        env:
+          GIT_REF: ${{ github.ref_name }}
+        run: |
+          cd ansible
+          ansible-playbook playbooks/deploy.yml \
+            -i inventories/production.yml \
+            --ssh-extra-args='-o StrictHostKeyChecking=no'
