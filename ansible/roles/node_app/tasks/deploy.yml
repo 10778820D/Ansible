@@ -9,8 +9,8 @@
 
 - name: Checkout app code from repo (pull latest)
   git:
-    repo: 'https://github.com/10778820D/Ansible.git'  # REEMPLAZA con tu repo
-    dest: /home/deploy/apps/myapp
+    repo: "https://{{ github_token }}@github.com/10778820D/Ansible.git"
+    dest: /home/deploy/apps/myapp/app
     version: "{{ git_ref | default('main') }}"
     force: yes
     update: yes

@@ -1,6 +1,9 @@
----
-- name: Deploy Node.js app to production
-  hosts: all
-  become: no
-  roles:
-    - node_app
+- name: Prepare SSH & env
+  run: |
+    mkdir -p ~/.ssh
+    echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+    chmod 644 ~/.ssh/known_hosts
+    echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+    chmod 600 ~/.ssh/id_rsa
+  env:
+    GH_TOKEN: ${{ secrets.GH_TOKEN }}   # pasa el token a Ansible como env
