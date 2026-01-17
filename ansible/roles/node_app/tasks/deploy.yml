@@ -17,9 +17,9 @@
   become: no
 
 - name: Install npm dependencies
-  npm:
-    path: /home/deploy/apps/myapp
-    production: yes
+  community.general.npm:
+    path: /var/www/app
+    production: true
 
 - name: Copy systemd service file
   template:

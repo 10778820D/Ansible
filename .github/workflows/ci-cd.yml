@@ -49,6 +49,10 @@ jobs:
            python3 -m pip install --upgrade pip
            python3 -m pip install ansible-core==2.15.9
 
+      - name: Install Ansible collections
+        run: |
+           ansible-galaxy collection install community.general
+
       - name: Run Ansible Playbook (deploy)
         env:
           GIT_REF: ${{ github.ref_name }}
